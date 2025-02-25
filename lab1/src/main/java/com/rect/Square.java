@@ -11,6 +11,19 @@ public class Square {
         this.length = length;
     }
 
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
     @Override
     public String toString() {
         return "Квадрат: (" + x + ", " + y + "), Размер: " + length + "x" + length;

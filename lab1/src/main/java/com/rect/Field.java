@@ -104,4 +104,16 @@ public class Field {
         }
         filledArea += (state ? size * size : -size * size);
     }
+
+    public int getMinSquares() {
+        return minSquares;
+    }
+
+    public List<Square> getBestSolution() {
+        return bestSolution;
+    }
+
+    public int getLength() {
+        return length;
+    }
 }
