@@ -10,6 +10,7 @@ public class Field {
     private static final Logger logger = LogManager.getLogger(Field.class);
 
     private final int length;
+    private int filledArea;
     private final int width;
     private final boolean[][] occupied;
     private List<Square> bestSolution = new ArrayList<>();
@@ -19,6 +20,7 @@ public class Field {
         this.length = length;
         this.width = width;
         this.occupied = new boolean[length][width];
+        this.filledArea = 0;
     }
 
     public void solve() {
@@ -50,6 +52,13 @@ public class Field {
         int x = pos[0], y = pos[1];
         int maxSize = Math.min(length - x, width - y);
         maxSize = Math.min(maxSize, Math.min(length, width) - 1);
+        int remainingArea = length * width - filledArea;
+
+        int maxPossibleSize = maxSize;
+        int minRemaining = (int) Math.ceil((double) remainingArea / (maxPossibleSize * maxPossibleSize));
+        if (count + minRemaining >= minSquares) {
+            return;
+        }
 
         logger.debug("Попытка разместить квадраты в позиции ({}, {})...", x + 1, y + 1);
 
@@ -93,5 +102,6 @@ public class Field {
                 occupied[x + dx][y + dy] = state;
             }
         }
+        filledArea += (state ? size * size : -size * size);
     }
 }
