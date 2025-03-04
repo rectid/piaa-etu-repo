@@ -25,7 +25,7 @@ public class Field {
 
     public void solve() {
         logger.info("Начинаем поиск минимального количества квадратов...");
-        backtrack(new ArrayList<>(), 0);
+        backtrack(new ArrayList<>(), 0, 0);
         logger.info("Минимальное количество квадратов: {}", minSquares);
         logger.info("Лучшее решение:");
         for (Square s : bestSolution) {
@@ -33,16 +33,16 @@ public class Field {
         }
     }
 
-    private void backtrack(List<Square> placed, int count) {
+    private void backtrack(List<Square> placed, int count, int depth) {
         if (count >= minSquares) {
-            logger.debug("Текущий путь не оптимален, возвращаемся.");
+            logger.debug("{}{} Текущий путь не оптимален, возвращаемся.", depth, "-".repeat(depth));
             return;
         }
 
         int[] pos = findFirstEmpty();
         if (pos == null) {
             if (count < minSquares) {
-                logger.info("Найдено новое лучшее решение с {} квадратами.", count);
+                logger.info("{}{} Найдено новое лучшее решение с {} квадратами.", depth, "-".repeat(depth), count);
                 minSquares = count;
                 bestSolution = new ArrayList<>(placed);
             }
@@ -60,19 +60,19 @@ public class Field {
             return;
         }
 
-        logger.debug("Попытка разместить квадраты в позиции ({}, {})...", x + 1, y + 1);
+        logger.debug("{}{} Попытка разместить квадраты в позиции ({}, {})...", depth, "-".repeat(depth), x + 1, y + 1);
 
         for (int size = maxSize; size >= 1; size--) {
             if (canPlace(x, y, size)) {
-                logger.debug("Размещаем квадрат размером {}x{} в позиции ({}, {})", size, size, x + 1, y + 1);
+                logger.debug("{}{} Размещаем квадрат размером {}x{} в позиции ({}, {})", depth, "-".repeat(depth), size, size, x + 1, y + 1);
                 place(x, y, size, true);
                 placed.add(new Square(x + 1, y + 1, size));
-                backtrack(placed, count + 1);
+                backtrack(placed, count + 1, depth + 1);
                 placed.remove(placed.size() - 1);
                 place(x, y, size, false);
-                logger.debug("Убираем квадрат размером {}x{} из позиции ({}, {})", size, size, x + 1, y + 1);
+                logger.debug("{}{} Убираем квадрат размером {}x{} из позиции ({}, {})", depth, "-".repeat(depth), size, size, x + 1, y + 1);
             } else {
-                logger.debug("Квадрат размером {}x{} нельзя разместить в позиции ({}, {})", size, size, x + 1, y + 1);
+                logger.debug("{}{} Квадрат размером {}x{} нельзя разместить в позиции ({}, {})", depth, "-".repeat(depth), size, size, x + 1, y + 1);
             }
         }
     }
