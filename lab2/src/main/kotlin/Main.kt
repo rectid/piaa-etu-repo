@@ -10,25 +10,13 @@ enum class ChosenStrategy {
 }
 
 fun main() {
+
     val numOfCities = readln().toInt()
-    val strategy = ChosenStrategy.BNB
-    val matrix = readMatrix(numOfCities)
-
-    val solver: TspStrategy = when (strategy) {
-        ChosenStrategy.BNB -> BranchAndBoundTspStrategy()
-        ChosenStrategy.APPROX -> ApproximateTspStrategy()
-    }
-
-    printResult(solver.solve(matrix))
-}
-
-fun printResult(result: Pair<Int, List<Int>>) {
-    if (result.first == -1) {
-        println("no path")
-        return
-    }
-    println(result.second.joinToString(" "))
-    print(result.first.toFloat())
+    val context = Context(readMatrix(numOfCities))
+    context.strategy = ChosenStrategy.BNB
+    context.run()
+    context.strategy = ChosenStrategy.APPROX
+    context.run()
 }
 
 fun readMatrix(numOfCities: Int): Array<IntArray> {
@@ -43,3 +31,31 @@ fun readMatrix(numOfCities: Int): Array<IntArray> {
 
     return matrix
 }
+
+class Context(private val matrix: Array<IntArray>) {
+
+    lateinit var strategy: ChosenStrategy
+
+    fun run() {
+        val solver: TspStrategy = when (strategy) {
+            ChosenStrategy.BNB -> BranchAndBoundTspStrategy()
+            ChosenStrategy.APPROX -> ApproximateTspStrategy()
+        }
+
+        printResult(solver.solve(matrix))
+    }
+
+    private fun printResult(result: Pair<Int, List<Int>>) {
+        when (strategy) {
+            ChosenStrategy.BNB -> println("BNB Strategy:")
+            ChosenStrategy.APPROX -> println("APPROX Strategy:")
+        }
+        if (result.first == -1) {
+            println("no path")
+            return
+        }
+        println(result.second.joinToString(" "))
+        println(result.first.toFloat())
+    }
+}
+

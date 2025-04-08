@@ -104,35 +104,54 @@ class ApproximateTspStrategy : TspStrategy {
         if (n == 1) return 0 to listOf(0)
 
         val startVertex = 0
-        val visited = mutableSetOf(startVertex)
-        val path = mutableListOf(startVertex)
-        var currentVertex = startVertex
-        var totalCost = 0
 
-        while (visited.size < n) {
-            var nextVertex = -1
-            var minEdge = Int.MAX_VALUE
+        val mst = Array(n) { mutableListOf<Int>() }
+        val visited = BooleanArray(n)
+        val pq = PriorityQueue<Triple<Int, Int, Int>>(compareBy { it.third }) // from, to, weight
+        visited[startVertex] = true
 
-            for (i in 0 until n) {
-                if (i != currentVertex && !visited.contains(i) && matrix[currentVertex][i] < minEdge) {
-                    minEdge = matrix[currentVertex][i]
-                    nextVertex = i
-                }
+        for (v in 0 until n) {
+            if (v != startVertex && matrix[startVertex][v] != Int.MAX_VALUE) {
+                pq.add(Triple(startVertex, v, matrix[startVertex][v]))
             }
-
-            if (nextVertex == -1) break
-
-            totalCost += minEdge
-            path.add(nextVertex)
-            visited.add(nextVertex)
-            currentVertex = nextVertex
         }
 
-        if (visited.size != n) return -1 to emptyList()
+        while (pq.isNotEmpty()) {
+            val (from, to, _) = pq.poll()
+            if (visited[to]) continue
+            visited[to] = true
+            mst[from].add(to)
+            mst[to].add(from)
 
-        val returnCost = matrix[currentVertex][startVertex]
+            for (v in 0 until n) {
+                if (!visited[v] && matrix[to][v] != Int.MAX_VALUE) {
+                    pq.add(Triple(to, v, matrix[to][v]))
+                }
+            }
+        }
+
+        val path = mutableListOf<Int>()
+        val seen = BooleanArray(n)
+
+        fun dfs(v: Int) {
+            seen[v] = true
+            path.add(v)
+            for (u in mst[v]) {
+                if (!seen[u]) dfs(u)
+            }
+        }
+
+        dfs(startVertex)
+
+        var totalCost = 0
+        for (i in 0 until path.size - 1) {
+            val cost = matrix[path[i]][path[i + 1]]
+            if (cost == Int.MAX_VALUE) return -1 to emptyList()
+            totalCost += cost
+        }
+
+        val returnCost = matrix[path.last()][startVertex]
         if (returnCost == Int.MAX_VALUE) return -1 to emptyList()
-
         totalCost += returnCost
 
         return totalCost to path
